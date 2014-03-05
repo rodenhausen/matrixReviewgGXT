@@ -88,14 +88,14 @@ public class MyGridView<M> extends GridView<M> {
 		final String rowDirtyClass = " " + styles.rowDirty();
 
 		final String cellClass = styles.cell();
-		System.out.println(styles.cellInner());
+		/*System.out.println(styles.cellInner());
 		System.out.println(styles.cell());
 		System.out.println(styles.rowWrap());
 		System.out.println(styles.rowBody());
 		System.out.println(styles.rowBodyRow());
 		System.out.println(styles.cellDirty());
 		System.out.println(styles.rowDirty());
-		
+		*/
 		final String headInnerClass = columnHeaderStyles.headInner();
 		final String cellInnerClass = styles.cellInner();
 		final String cellFirstClass = " x-grid-cell-first";

@@ -269,7 +269,6 @@ public class TaxonMatrixView implements IsWidget {
 	public void toggleEditing(int colIndex) {
 		ColumnConfig columnConfig = grid.getColumnModel().getColumns().get(colIndex);
 		Field<?> field = editing.getEditor(columnConfig);
-		System.out.println(editing.getEditor(columnConfig));
 		if(editing.getEditor(columnConfig) != null) {
 			this.disableEditing(columnConfig);
 		} else {
