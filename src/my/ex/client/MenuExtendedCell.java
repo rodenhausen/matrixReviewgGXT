@@ -6,16 +6,25 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.DOM;
+import com.sencha.gxt.core.client.Style.Anchor;
+import com.sencha.gxt.core.client.Style.AnchorAlignment;
+import com.sencha.gxt.widget.core.client.event.HideEvent;
+import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader;
 import com.sencha.gxt.widget.core.client.grid.GridView;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderAppearance;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderStyles;
 import com.sencha.gxt.widget.core.client.grid.GridView.GridAppearance;
 import com.sencha.gxt.widget.core.client.grid.GridView.GridStyles;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
+import com.sencha.gxt.widget.core.client.menu.MenuItem;
 
 public class MenuExtendedCell<C> extends AbstractCell<C> {
 
@@ -122,16 +131,52 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 			if (event.getType().equals(BrowserEvents.CLICK)) {
 				if (Element.is(event.getEventTarget())) {
 					Element clickedElement = Element.as(event.getEventTarget());
-					System.out.println(clickedElement);
-					System.out.println(clickedElement.getClassName().equals(
-							columnHeaderStyles.headButton()));
+					if(clickedElement.getClassName().equals(columnHeaderStyles.headButton())) {
+						aGrandParent.addClassName(columnHeaderStyles.headMenuOpen());
+						this.showColumnMenu(clickedElement, context.getColumn(), context.getIndex());
+					}
 				}
-	
-				aGrandParent.addClassName(columnHeaderStyles.headMenuOpen());
 				// event.preventDefault();
 				// event.stopPropagation();
 			}
 		}
-
 	}
+	
+	public void showColumnMenu(Element parent, final int column, final int row) {
+		Menu menu = createContextMenu(column, row);
+		if (menu != null) {
+			menu.setId("cell" + column + "." + row + "-menu");
+			menu.addHideHandler(new HideHandler() {
+				@Override
+				public void onHide(HideEvent event) {
+					//h.activateTrigger(false);
+					//if (container instanceof Component) {
+					//	((Component) container).focus();
+					//}
+				}
+			});
+			menu.show(parent, new AnchorAlignment(Anchor.TOP_LEFT,
+					Anchor.BOTTOM_LEFT, true));
+		}
+	}
+		
+	  /**
+	   * Creates a context menu for the given column, including sort menu items and
+	   * column visibility sub-menu.
+	   * 
+	   * @param colIndex the column index
+	   * @return the context menu for the given column
+	   */
+	  protected Menu createContextMenu(final int colIndex, final int rowIndex) {
+	    final Menu menu = new Menu();
+	    MenuItem test = new MenuItem("wuha");
+	    test.addSelectionHandler(new SelectionHandler<Item>() {
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+				System.out.println("wuha at " + colIndex + " " + rowIndex);
+			}
+	    });
+	    menu.add(test);
+	    return menu;
+	  }
 }

@@ -160,6 +160,12 @@ public class TaxonCell<C> extends AbstractCell<C> {
 	  protected Menu createContextMenu(final int colIndex, final int rowIndex) {
 	    final Menu menu = new Menu();
 	    MenuItem test = new MenuItem("wuha");
+	    test.addSelectionHandler(new SelectionHandler<Item>() {
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+				System.out.println("wuha at " + colIndex + " " + rowIndex);
+			}
+	    });
 	    menu.add(test);
 	    return menu;
 	  }
