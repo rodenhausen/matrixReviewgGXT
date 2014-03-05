@@ -32,10 +32,10 @@ import com.sencha.gxt.dnd.core.client.GridDropTarget;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
-import com.sencha.gxt.widget.core.client.grid.MenuExtendedCell;
 import com.sencha.gxt.widget.core.client.grid.MyGrid;
 import com.sencha.gxt.widget.core.client.grid.RowHeader;
 import com.sencha.gxt.widget.core.client.grid.editing.GridInlineEditing;
+import com.sencha.gxt.widget.core.client.grid.editing.MyGridInlineEditing;
 
 import com.sencha.gxt.widget.core.client.form.Field;
 
@@ -43,7 +43,7 @@ public class TaxonMatrixView implements IsWidget {
 	
 	private TaxonMatrix taxonMatrix;
 	private MyGrid<Taxon> grid;
-	private GridInlineEditing<Taxon> editing;
+	private MyGridInlineEditing<Taxon> editing;
 	
 	public TaxonMatrixView() {
 		this.grid = createGrid();
@@ -72,8 +72,9 @@ public class TaxonMatrixView implements IsWidget {
 		grid.reconfigure(store, cm);
 		
 		//set up editing
-		editing = new GridInlineEditing<Taxon>(grid);
-		for (ColumnConfig columnConfig : l) {
+		editing = new MyGridInlineEditing<Taxon>(grid);
+		for (int i=0; i<l.size(); i++) {
+			ColumnConfig columnConfig = l.get(i);
 			this.enableEditing(columnConfig);
 		}
 	}
@@ -231,24 +232,13 @@ public class TaxonMatrixView implements IsWidget {
 					return "/name";
 				}
 			}, 200, "Taxon Concept");
-		
-		
-		
-		//List<HasCell<Taxon, ?>> childCells = new LinkedList<HasCell<Taxon, ?>>();
-		//TextColumn<?> test = new TextColumn<?>();
-		//Column<Taxon, ?> valueColumn = new Column<Taxon, ?>();
-		//	childCells.add(new EditTextCell());
-		//CompositeCell<Taxon> cell = new CompositeCell<Taxon>(childCells);
-		
-		
-		nameCol.setCell(new MenuExtendedCell<String>());
-		System.out.println(nameCol.getCell());
-		//nameCol.setCell(new RowHeader());
+				
+		nameCol.setCell(new TaxonCell<String>());
 		return nameCol;
 	}
 	
 	private ColumnConfig<Taxon, String> createCharacterColumnConfig(final Character character) {
-		return new ColumnConfig<Taxon, String>(
+		ColumnConfig<Taxon, String> characterCol = new ColumnConfig<Taxon, String>(
 				new ValueProvider<Taxon, String>() {
 					@Override
 					public String getValue(Taxon object) {
@@ -265,6 +255,9 @@ public class TaxonMatrixView implements IsWidget {
 						return "/" + character.getName() + "/value";
 					}
 				}, 200, character.getName());
+		characterCol.setCell(new MenuExtendedCell<String>());
+		return characterCol;
+		
 	}
 
 	public void deleteColumn(int colIndex) {
