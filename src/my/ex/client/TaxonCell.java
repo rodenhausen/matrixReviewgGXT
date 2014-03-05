@@ -25,7 +25,7 @@ public class TaxonCell<C> extends AbstractCell<C> {
 	private GridStyles gridStyles;
 
 	interface Templates extends SafeHtmlTemplates {
-		@SafeHtmlTemplates.Template("<div class=\"{0}\"><div class=\"{1}\" style=\"width: 189px; height:14px\"><a href=\"#\" class=\"{2}\" style=\"height: 22px;\"></a></div></div>")
+		@SafeHtmlTemplates.Template("<div class=\"{0}\"><div class=\"{1}\" style=\"width: calc(100% - 9px); height:14px\"><a href=\"#\" class=\"{2}\" style=\"height: 22px;\"></a></div></div>")
 		SafeHtml cell(String grandParentStyleClass, String parentStyleClass,
 				String aStyleClass);
 	}
@@ -88,8 +88,8 @@ public class TaxonCell<C> extends AbstractCell<C> {
 			//client.Element is a newer version of dom.Element. It actually only extends it if you look in source
 			//http://stackoverflow.com/questions/9024548/gwt-why-is-there-two-element-types
 			
-			DOM.setStyleAttribute(aParent, "width", "189px");
-			DOM.setStyleAttribute(aParent, "height", "14px");
+			//DOM.setStyleAttribute(aParent, "width", "189px");
+			//DOM.setStyleAttribute(aParent, "height", "14px");
 			
 			aGrandParent.addClassName(columnHeaderStyles.headOver());
 			
