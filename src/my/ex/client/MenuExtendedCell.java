@@ -51,9 +51,9 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 		if (value == null)
 			return;
 
-		//SafeHtml rendered = templates.cell(columnHeaderStyles.header() + " " + columnHeaderStyles.head(), columnHeaderStyles.headInner(),
-		//		columnHeaderStyles.headButton());
-		//sb.append(rendered);
+		SafeHtml rendered = templates.cell("", columnHeaderStyles.headInner(),
+				columnHeaderStyles.headButton());
+		sb.append(rendered);
 	}
 
 	@Override

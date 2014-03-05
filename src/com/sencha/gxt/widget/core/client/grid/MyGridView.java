@@ -161,8 +161,8 @@ public class MyGridView<M> extends GridView<M> {
 				String cellInnerClasses = "";
 				//if (i == 0)
 				//	cellInnerClasses = columnHeaderStyles.headInner();
-				if (i != 0)
-					cellInnerClasses = cellInnerClass;
+				//if (i != 0)
+				//	cellInnerClasses = cellInnerClass;
 				if (columnConfig.getColumnTextClassName() != null) {
 					cellInnerClasses += " "
 							+ columnConfig.getColumnTextClassName();
