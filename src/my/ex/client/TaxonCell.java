@@ -43,9 +43,9 @@ public class TaxonCell<C> extends AbstractCell<C> {
 	private GridStyles gridStyles;
 
 	interface Templates extends SafeHtmlTemplates {
-		@SafeHtmlTemplates.Template("<div class=\"{0}\"><div class=\"{1}\" style=\"width: calc(100% - 9px); height:14px\"><a href=\"#\" class=\"{2}\" style=\"height: 22px;\"></a></div></div>")
+		@SafeHtmlTemplates.Template("<div class=\"{0}\"><div class=\"{1}\" style=\"width: calc(100% - 9px); height:14px\">{3}<a href=\"#\" class=\"{2}\" style=\"height: 22px;\"></a></div></div>")
 		SafeHtml cell(String grandParentStyleClass, String parentStyleClass,
-				String aStyleClass);
+				String aStyleClass, String value);
 	}
 
 	private static Templates templates = GWT.create(Templates.class);
@@ -68,7 +68,7 @@ public class TaxonCell<C> extends AbstractCell<C> {
 			return;
 
 		SafeHtml rendered = templates.cell(columnHeaderStyles.header() + " " + columnHeaderStyles.head(), columnHeaderStyles.headInner(),
-				columnHeaderStyles.headButton());
+				columnHeaderStyles.headButton(), value.toString());
 		sb.append(rendered);
 	}
 
