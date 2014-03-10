@@ -70,7 +70,7 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 			NativeEvent event, ValueUpdater<C> valueUpdater) {
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
 		
-		System.out.println("parent " + parent);
+		//System.out.println("parent " + parent);
 		
 		//A is the link used for menu; parent is parent of event
 		com.google.gwt.user.client.Element aGrandParent = null;

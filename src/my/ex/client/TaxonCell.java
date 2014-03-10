@@ -77,7 +77,7 @@ public class TaxonCell<C> extends AbstractCell<C> {
 			NativeEvent event, ValueUpdater<C> valueUpdater) {
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
 		
-		System.out.println("parent " + parent);
+		//System.out.println("parent " + parent);
 		com.google.gwt.user.client.Element aGrandParent = (com.google.gwt.user.client.Element)parent.getChild(0);
 		com.google.gwt.user.client.Element aParent = (com.google.gwt.user.client.Element)aGrandParent.getChild(0);
 		

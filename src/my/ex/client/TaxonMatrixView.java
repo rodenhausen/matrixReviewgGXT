@@ -81,7 +81,7 @@ public class TaxonMatrixView implements IsWidget {
 
 	private MyGrid<Taxon> createGrid() {
 		MyGrid<Taxon> grid = new MyGrid<Taxon>(new ListStore<Taxon>(new TaxonModelKeyProvider()), new ColumnModel<Taxon>(new ArrayList<ColumnConfig<Taxon, ?>>()), this);
-		grid.getView().setForceFit(true);
+		grid.getView().setForceFit(false); // if change in column width we want the table to become wider not stay fixed at overall width
 		grid.setColumnReordering(true);
 		
 		//set up row drag and drop for taxon move
