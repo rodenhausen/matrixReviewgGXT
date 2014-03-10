@@ -12,6 +12,8 @@ import com.google.gwt.safecss.shared.SafeStylesUtils;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.SortDir;
+import com.sencha.gxt.messages.client.DefaultMessages;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderAppearance;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderStyles;
 import com.sencha.gxt.widget.core.client.grid.GridView.GridAppearance;
@@ -36,14 +38,13 @@ public class MyGridView<M> extends GridView<M> {
 		this.taxonMatrixView = taxonMatrixView;
 	}
 
-
 	@Override
 	protected Menu createContextMenu(final int colIndex) {
-		Menu menu = super.createContextMenu(colIndex);		
-		
+		Menu menu = super.createContextMenu(colIndex);
+
 		MenuItem item = new MenuItem();
 		item.setText("Delete");
-		//item.setIcon(header.getAppearance().sortAscendingIcon());
+		// item.setIcon(header.getAppearance().sortAscendingIcon());
 		item.addSelectionHandler(new SelectionHandler<Item>() {
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
@@ -51,10 +52,10 @@ public class MyGridView<M> extends GridView<M> {
 			}
 		});
 		menu.add(item);
-		
+
 		item = new MenuItem();
 		item.setText("Lock");
-		//item.setIcon(header.getAppearance().sortAscendingIcon());
+		// item.setIcon(header.getAppearance().sortAscendingIcon());
 		item.addSelectionHandler(new SelectionHandler<Item>() {
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
@@ -62,7 +63,34 @@ public class MyGridView<M> extends GridView<M> {
 			}
 		});
 		menu.add(item);
+
+		item = new MenuItem("Move after");
+		menu.add(item);
+		Menu moveMenu = new Menu();
+		item.setSubMenu(moveMenu);
+
+		item = new MenuItem("start");
+		item.addSelectionHandler(new SelectionHandler<Item>() {
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+				cm.moveColumn(colIndex, 0);
+			}
+		});
+		moveMenu.add(item);
 		
+		int cols = cm.getColumnCount();
+		for (int i = 0; i < cols; i++) {
+			final int theI = i;
+			item = new MenuItem(cm.getColumnHeader(i).asString());
+			item.addSelectionHandler(new SelectionHandler<Item>() {
+				@Override
+				public void onSelection(SelectionEvent<Item> event) {
+					cm.moveColumn(colIndex, theI + 1);
+				}
+			});
+			moveMenu.add(item);
+		}
+
 		return menu;
 	}
 	

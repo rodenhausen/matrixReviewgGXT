@@ -29,6 +29,7 @@ import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.dnd.core.client.DND.Feedback;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.dnd.core.client.GridDropTarget;
+import com.sencha.gxt.dnd.core.client.MyGridDropTarget;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
@@ -80,16 +81,16 @@ public class TaxonMatrixView implements IsWidget {
 	}
 
 	private MyGrid<Taxon> createGrid() {
-		MyGrid<Taxon> grid = new MyGrid<Taxon>(new ListStore<Taxon>(new TaxonModelKeyProvider()), new ColumnModel<Taxon>(new ArrayList<ColumnConfig<Taxon, ?>>()), this);
+		MyGrid<Taxon> grid = new MyGrid<Taxon>(new ListStore<Taxon>(new TaxonModelKeyProvider()), 
+				new ColumnModel<Taxon>(new ArrayList<ColumnConfig<Taxon, ?>>()), this);
 		grid.getView().setForceFit(false); // if change in column width we want the table to become wider not stay fixed at overall width
 		grid.setColumnReordering(true);
 		
 		//set up row drag and drop for taxon move
-		GridDragSource<Taxon> gds = new GridDragSource<Taxon>(grid);
-		GridDropTarget<Taxon> target = new GridDropTarget<Taxon>(grid);
-		target.setFeedback(Feedback.INSERT);
-		target.setAllowSelfAsSource(true);
-		
+		//GridDragSource<Taxon> gds = new GridDragSource<Taxon>(grid);
+		//MyGridDropTarget<Taxon> target = new MyGridDropTarget<Taxon>(grid);
+		//target.setFeedback(Feedback.INSERT);
+		//target.setAllowSelfAsSource(true);
 
 		
 		// Filtering

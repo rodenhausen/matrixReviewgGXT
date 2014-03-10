@@ -11,13 +11,10 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.DOM;
 import com.sencha.gxt.core.client.Style.Anchor;
 import com.sencha.gxt.core.client.Style.AnchorAlignment;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
-import com.sencha.gxt.widget.core.client.grid.ColumnHeader;
-import com.sencha.gxt.widget.core.client.grid.GridView;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderAppearance;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderStyles;
 import com.sencha.gxt.widget.core.client.grid.GridView.GridAppearance;
@@ -30,8 +27,8 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 
 	private ColumnHeaderAppearance columnHeaderAppearance;
 	private GridAppearance gridAppearance;
-	private ColumnHeaderStyles columnHeaderStyles;
-	private GridStyles gridStyles;
+	protected ColumnHeaderStyles columnHeaderStyles;
+	protected GridStyles gridStyles;
 
 	interface Templates extends SafeHtmlTemplates {
 		@SafeHtmlTemplates.Template("<div class=\"{0}\"><div class=\"{1}\" style=\"width: calc(100% - 9px); height:14px\">{3}<a href=\"#\" class=\"{2}\" style=\"height: 22px;\"></a></div></div>")
@@ -39,7 +36,7 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 				String aStyleClass, String value);
 	}
 
-	private static Templates templates = GWT.create(Templates.class);
+	protected static Templates templates = GWT.create(Templates.class);
 
 
 	public MenuExtendedCell() {
@@ -53,6 +50,23 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 		this.gridAppearance = gridAppearance;
 		columnHeaderStyles = columnHeaderAppearance.styles();
 		gridStyles = gridAppearance.styles();
+		
+		/*
+		System.out.println(styles.headOver());
+		System.out.println(styles.columnMoveBottom());
+		System.out.println(styles.columnMoveTop());
+		System.out.println(styles.head());
+		System.out.println(styles.headButton());
+		System.out.println(styles.header());
+		System.out.println(styles.headInner());
+		System.out.println(styles.headMenuOpen());
+		System.out.println(styles.headOver());
+		System.out.println(styles.headRow());
+		System.out.println(styles.sortAsc());
+		System.out.println(styles.sortDesc());
+		System.out.println(styles.sortIcon());
+		System.out.println(styles.headerInner());
+		*/
 	}
 
 	@Override
@@ -68,62 +82,31 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 	@Override
 	public void onBrowserEvent(Context context, Element parent, C value,
 			NativeEvent event, ValueUpdater<C> valueUpdater) {
+		// event.preventDefault();
+		// event.stopPropagation();
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
-		
-		//System.out.println("parent " + parent);
 		
 		//A is the link used for menu; parent is parent of event
 		com.google.gwt.user.client.Element aGrandParent = null;
 		com.google.gwt.user.client.Element aParent = null;
 		if(parent.getChildCount() > 0) { 
+			//client.Element is a newer version of dom.Element. It actually only extends it if you look in source
+			//http://stackoverflow.com/questions/9024548/gwt-why-is-there-two-element-types
 			aGrandParent = (com.google.gwt.user.client.Element)parent.getChild(0);
 			if(aGrandParent.getChildCount() > 0) {
 				aParent = (com.google.gwt.user.client.Element)aGrandParent.getChild(0);
 			} else {
-				System.out.println("no parent " + parent);
+				//System.out.println("no parent " + parent);
 			}
 		} else {
-			System.out.println("no grand parent " + parent);
+			//System.out.println("no grand parent " + parent);
 		}
 		
 		if(aParent != null && aGrandParent != null) {
-		
-			if(event.getType().equals(BrowserEvents.MOUSEOVER)) {
-				//System.out.println(parent.getInnerHTML().toString());
-				//System.out.println(((Element)parent.getChild(0)).getInnerHTML().toCharArray());
-				//System.out.println(((Element)parent.getChild(0).getChild(0)).getInnerHTML().toCharArray());
-				
-				/*
-				System.out.println(styles.headOver());
-				System.out.println(styles.columnMoveBottom());
-				System.out.println(styles.columnMoveTop());
-				System.out.println(styles.head());
-				System.out.println(styles.headButton());
-				System.out.println(styles.header());
-				System.out.println(styles.headInner());
-				System.out.println(styles.headMenuOpen());
-				System.out.println(styles.headOver());
-				System.out.println(styles.headRow());
-				System.out.println(styles.sortAsc());
-				System.out.println(styles.sortDesc());
-				System.out.println(styles.sortIcon());
-				System.out.println(styles.headerInner());
-				*/
-				
-				//client.Element is a newer version of dom.Element. It actually only extends it if you look in source
-				//http://stackoverflow.com/questions/9024548/gwt-why-is-there-two-element-types
-	
-	
-				
-				//DOM.setStyleAttribute(aParent, "width", "189px");
-				//DOM.setStyleAttribute(aParent, "height", "14px");
-				
+			if(event.getType().equals(BrowserEvents.MOUSEOVER)) {							
 				aGrandParent.addClassName(columnHeaderStyles.headOver());
-				
 				//aParent.addClassName(styles.headInner());
-				//DOM.setStyleAttribute(aGrandParent, "display", "block");
 			}
-	
 			if(event.getType().equals(BrowserEvents.MOUSEOUT)) {
 				aGrandParent.removeClassName(columnHeaderStyles.headOver());
 				aGrandParent.removeClassName(columnHeaderStyles.headMenuOpen());
@@ -136,8 +119,6 @@ public class MenuExtendedCell<C> extends AbstractCell<C> {
 						this.showColumnMenu(clickedElement, context.getColumn(), context.getIndex());
 					}
 				}
-				// event.preventDefault();
-				// event.stopPropagation();
 			}
 		}
 	}
