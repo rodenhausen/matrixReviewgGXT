@@ -34,7 +34,6 @@ import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.MyGrid;
-import com.sencha.gxt.widget.core.client.grid.RowHeader;
 import com.sencha.gxt.widget.core.client.grid.editing.GridInlineEditing;
 import com.sencha.gxt.widget.core.client.grid.editing.MyGridInlineEditing;
 
@@ -234,7 +233,7 @@ public class TaxonMatrixView implements IsWidget {
 				}
 			}, 200, "Taxon Concept");
 				
-		nameCol.setCell(new TaxonCell<String>());
+		nameCol.setCell(new TaxonCell<String>(grid));
 		return nameCol;
 	}
 	

@@ -44,6 +44,7 @@ public class GridDropTarget<M> extends DropTarget {
   public GridDropTarget(Grid<M> grid) {
     super(grid);
     this.grid = grid;
+    System.out.println("created grid drop target");
   }
 
   /**
