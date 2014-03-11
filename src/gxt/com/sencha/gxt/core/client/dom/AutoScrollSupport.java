@@ -29,6 +29,7 @@ public class AutoScrollSupport {
   private int scrollRegionHeight = 25;
   private XElement scrollElement;
   private boolean active;
+  private int scrollZone = 100;
 
   private DelayedTask scrollUpTask = new DelayedTask() {
 
@@ -216,11 +217,11 @@ public class AutoScrollSupport {
     if (!autoScroll) return;
 
     topBounds = scrollElement.getBounds();
-    topBounds.setHeight(20);
+    topBounds.setHeight(scrollZone);
 
     bottomBounds = scrollElement.getBounds();
-    bottomBounds.setY(bottomBounds.getY() + bottomBounds.getHeight() - 20);
-    bottomBounds.setHeight(20);
+    bottomBounds.setY(bottomBounds.getY() + bottomBounds.getHeight() - scrollZone);
+    bottomBounds.setHeight(scrollZone);
 
     preview.add();
   }

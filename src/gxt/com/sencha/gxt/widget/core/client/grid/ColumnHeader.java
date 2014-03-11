@@ -10,6 +10,8 @@ package com.sencha.gxt.widget.core.client.grid;
 import java.util.ArrayList;
 import java.util.List;
 
+import my.ex.client.TaxonMatrixView;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Document;
@@ -39,7 +41,9 @@ import com.sencha.gxt.core.client.GXT;
 import com.sencha.gxt.core.client.Style.Anchor;
 import com.sencha.gxt.core.client.Style.AnchorAlignment;
 import com.sencha.gxt.core.client.Style.Side;
+import com.sencha.gxt.core.client.dom.AutoScrollSupport;
 import com.sencha.gxt.core.client.dom.DomQuery;
+import com.sencha.gxt.core.client.dom.MyHorizontalAutoScrollSupport;
 import com.sencha.gxt.core.client.dom.XDOM;
 import com.sencha.gxt.core.client.dom.XElement;
 import com.sencha.gxt.core.client.util.Region;
@@ -309,7 +313,7 @@ public class ColumnHeader<M> extends Component {
     private ImageElement img;
     private InlineHTML text;
     private Widget widget;
-    private int row;
+    protected int row;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Head(ColumnConfig column) {
@@ -480,10 +484,10 @@ public class ColumnHeader<M> extends Component {
   protected int splitterWidth = 5;
   protected FlexTable table = new FlexTable();
 
-  private QuickTip quickTip;
-  private boolean enableColumnReorder;
+  protected QuickTip quickTip;
+  protected boolean enableColumnReorder;
   private final ColumnHeaderAppearance appearance;
-  private ColumnHeaderStyles styles;
+  protected ColumnHeaderStyles styles;
 
   /**
    * Creates a new column header.

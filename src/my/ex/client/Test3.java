@@ -9,7 +9,14 @@ import my.ex.client.model.TaxonMatrix;
 import my.ex.client.model.Value;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
+import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -39,7 +46,14 @@ public class Test3 implements EntryPoint {
 		TaxonMatrixView taxonMatrixView = new TaxonMatrixView();
 		taxonMatrixView.init(taxonMatrix);
 		
-		RootPanel.get().add(taxonMatrixView.asWidget());
+		//simulate etc site 
+		DockLayoutPanel dock = new DockLayoutPanel(Unit.EM);
+		dock.addNorth(new HTML("header"), 2);
+		dock.addSouth(new HTML("footer"), 2);
+		dock.add(taxonMatrixView);
+		
+		//RootPanel.get().add(taxonMatrixView.asWidget());3
+		RootLayoutPanel.get().add(dock);
 	}
 
 }

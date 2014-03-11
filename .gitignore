@@ -9,3 +9,8 @@
 .project
 .classpath
 gwt-unitCache/*
+/examples-src
+/gwt-unitCache
+
+/war/WEB-INF/classes
+/war/WEB-INF/deploy

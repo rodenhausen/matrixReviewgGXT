@@ -24,12 +24,16 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.cell.core.client.form.FieldCell;
 import com.sencha.gxt.core.client.ValueProvider;
+import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
+import com.sencha.gxt.core.client.dom.XElement;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.dnd.core.client.DND.Feedback;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.dnd.core.client.GridDropTarget;
 import com.sencha.gxt.dnd.core.client.MyGridDropTarget;
+import com.sencha.gxt.widget.core.client.container.Container;
+import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
@@ -44,6 +48,7 @@ public class TaxonMatrixView implements IsWidget {
 	private TaxonMatrix taxonMatrix;
 	private MyGrid<Taxon> grid;
 	private MyGridInlineEditing<Taxon> editing;
+	private FlowLayoutContainer container = new FlowLayoutContainer();
 	
 	public TaxonMatrixView() {
 		this.grid = createGrid();
@@ -155,6 +160,8 @@ public class TaxonMatrixView implements IsWidget {
 
 	@Override
 	public Widget asWidget() {
+		container.setScrollMode(ScrollMode.AUTO);
+		
 		VerticalPanel panel = new VerticalPanel();		
 		panel.add(grid);
 		HorizontalPanel functionsPanel = new HorizontalPanel();
@@ -164,7 +171,9 @@ public class TaxonMatrixView implements IsWidget {
 		addTaxonButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				addTaxon(new Taxon("mu"));
+				for(int i=0; i<10; i++)
+					addTaxon(new Taxon("mu"));
+				
 			}
 		});
 		functionsPanel.add(addTaxonButton);
@@ -212,8 +221,9 @@ public class TaxonMatrixView implements IsWidget {
 		});
 		functionsPanel.add(lockButton);
 		*/
-				
-		return panel;
+		container.add(panel);
+		return container;
+		//return panel;
 	}
 
 	private ColumnConfig<Taxon, String> createNameColumnConfig() {
@@ -285,6 +295,9 @@ public class TaxonMatrixView implements IsWidget {
 		editing.removeEditor(columnConfig);
 	}
 
+	public Container getContainer() {
+		return container;
+	}
 	/*
 	 * // final ListLoader<ListLoadConfig, ListLoadResult<Taxon>> loader = new
 		// ListLoader<ListLoadConfig, ListLoadResult<Taxon>>(

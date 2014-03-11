@@ -11,6 +11,7 @@ import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safecss.shared.SafeStylesUtils;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Event;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.SortDir;
 import com.sencha.gxt.messages.client.DefaultMessages;
@@ -252,6 +253,49 @@ public class MyGridView<M> extends GridView<M> {
 		// end row loop
 		return buf.toSafeHtml();
 
+	}
+	
+	/**
+	 * Creates and initializes the column header and saves reference for future
+	 * use.
+	 */
+	@Override
+	protected void initColumnHeader() {
+		header = new MyColumnHeader<M>(grid, cm, taxonMatrixView.getContainer()) {
+
+			@Override
+			protected Menu getContextMenu(int column) {
+				return createContextMenu(column);
+			}
+
+			@Override
+			protected void onColumnSplitterMoved(int colIndex, int width) {
+				super.onColumnSplitterMoved(colIndex, width);
+				MyGridView.this.onColumnSplitterMoved(colIndex, width);
+			}
+
+			@Override
+			protected void onHeaderClick(Event ce, int column) {
+				super.onHeaderClick(ce, column);
+				MyGridView.this.onHeaderClick(column);
+			}
+
+			@Override
+			protected void onKeyDown(Event ce, int index) {
+				ce.stopPropagation();
+				// auto select on key down
+				if (grid.getSelectionModel() instanceof CellSelectionModel<?>) {
+					CellSelectionModel<?> csm = (CellSelectionModel<?>) grid
+							.getSelectionModel();
+					csm.selectCell(0, index);
+				} else {
+					grid.getSelectionModel().select(0, false);
+				}
+			}
+
+		};
+		header.setSplitterWidth(splitterWidth);
+		header.setMinColumnWidth(grid.getMinColumnWidth());
 	}
 
 }
