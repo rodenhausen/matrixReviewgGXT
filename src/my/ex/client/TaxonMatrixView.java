@@ -31,6 +31,7 @@ import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.dnd.core.client.DND.Feedback;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.dnd.core.client.GridDropTarget;
+import com.sencha.gxt.dnd.core.client.MyGridDragSource;
 import com.sencha.gxt.dnd.core.client.MyGridDropTarget;
 import com.sencha.gxt.widget.core.client.container.Container;
 import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
@@ -91,10 +92,10 @@ public class TaxonMatrixView implements IsWidget {
 		grid.setColumnReordering(true);
 		
 		//set up row drag and drop for taxon move
-		//GridDragSource<Taxon> gds = new GridDragSource<Taxon>(grid);
-		//MyGridDropTarget<Taxon> target = new MyGridDropTarget<Taxon>(grid);
-		//target.setFeedback(Feedback.INSERT);
-		//target.setAllowSelfAsSource(true);
+		MyGridDragSource<Taxon> dragSource = new MyGridDragSource<Taxon>(grid);
+		MyGridDropTarget<Taxon> target = new MyGridDropTarget<Taxon>(grid, container);
+		target.setFeedback(Feedback.INSERT);
+		target.setAllowSelfAsSource(true);
 
 		
 		// Filtering

@@ -190,31 +190,25 @@ public class MyHorizontalAutoScrollSupport {
   }
 
   protected void onMove(NativeEvent event) {
-	  System.out.println(event);
     Point p = new Point(event.getClientX(), event.getClientY());
     if (leftBounds.contains(p)) {
-    	System.out.println("+++++++++++++++ top bound contains");
       scrollLeftTask.delay(scrollDelay);
       scrollRightTask.cancel();
     } else if (rightBounds.contains(p)) {
-    	System.out.println("--------------- bottom bounds contains");
       scrollRightTask.delay(scrollDelay);
       scrollLeftTask.cancel();
     } else {
-    	System.out.println("no bound contains");
       scrollLeftTask.cancel();
       scrollRightTask.cancel();
     }
   }
 
   protected void onScrollRight() {
-	  System.out.println("on scroll right");
     scrollElement.setScrollLeft(scrollElement.getScrollLeft() + scrollRegionHeight);
     scrollRightTask.delay(scrollRepeatDelay);
   }
 
   protected void onScrollLeft() {
-	  System.out.println("on scroll left");
     scrollElement.setScrollLeft(Math.max(0, scrollElement.getScrollLeft() - scrollRegionHeight));
     scrollLeftTask.delay(scrollRepeatDelay);
   }
@@ -222,10 +216,11 @@ public class MyHorizontalAutoScrollSupport {
   protected void onStart() {
     if (!autoScroll) return;
 
-    System.out.println(scrollElement.getBounds());
+    /*System.out.println(scrollElement.getBounds());
     System.out.println(scrollElement.getBounds(true));
     System.out.println(scrollElement.getBounds(true, true));
     System.out.println(scrollElement.getBounds(false, true));
+    */
     
     leftBounds = scrollElement.getBounds();
     leftBounds.setWidth(scrollZone);

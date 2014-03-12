@@ -24,9 +24,9 @@ public class AutoScrollSupport {
 
   private boolean autoScroll = true;
   private int scrollDelay = 400;
-  private int scrollRepeatDelay = 300;
+  private int scrollRepeatDelay = 100;
   private Rectangle bottomBounds, topBounds;
-  private int scrollRegionHeight = 25;
+  private int scrollRegionHeight = 50;
   private XElement scrollElement;
   private boolean active;
   private int scrollZone = 100;
