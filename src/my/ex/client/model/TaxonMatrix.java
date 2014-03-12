@@ -29,7 +29,7 @@ public class TaxonMatrix {
 	}
 	
 	public Taxon addTaxon(String name) {
-		Taxon result = new Taxon(name, characters);
+		Taxon result = new Taxon(name, "", characters);
 		taxa.add(result);
 		return result;
 	}

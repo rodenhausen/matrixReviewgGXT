@@ -8,14 +8,21 @@ import java.util.Map;
 public class Taxon {
 
 	public String name;
+	private String description = "";
 	private Map<Character, Value> values = new HashMap<Character, Value>();
 
 	public Taxon(String name) {
 		this.name = name;
 	}
 	
-	public Taxon(String name, Collection<Character> characters) {
+	public Taxon(String name, String description) {
 		this.name = name;
+		this.description = description;
+	}
+	
+	public Taxon(String name, String description, Collection<Character> characters) {
+		this.name = name;
+		this.description = description;
 		this.init(characters);
 	}
 	
@@ -55,9 +62,13 @@ public class Taxon {
 		if(!values.containsKey(character))
 			values.put(character, new Value(""));
 	}
+
+	public String getDescription() {
+		return description;
+	}
 	
-	
-	
-	
-	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 }

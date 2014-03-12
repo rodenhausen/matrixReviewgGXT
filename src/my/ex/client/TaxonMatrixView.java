@@ -15,6 +15,7 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
@@ -39,8 +40,14 @@ import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.MyGrid;
+import com.sencha.gxt.widget.core.client.grid.RowExpander;
 import com.sencha.gxt.widget.core.client.grid.editing.GridInlineEditing;
 import com.sencha.gxt.widget.core.client.grid.editing.MyGridInlineEditing;
+import com.sencha.gxt.widget.core.client.grid.filters.DateFilter;
+import com.sencha.gxt.widget.core.client.grid.filters.GridFilters;
+import com.sencha.gxt.widget.core.client.grid.filters.StringFilter;
+import com.sencha.gxt.core.client.IdentityValueProvider;
+import com.google.gwt.cell.client.AbstractCell;
 
 import com.sencha.gxt.widget.core.client.form.Field;
 
@@ -50,6 +57,7 @@ public class TaxonMatrixView implements IsWidget {
 	private MyGrid<Taxon> grid;
 	private MyGridInlineEditing<Taxon> editing;
 	private FlowLayoutContainer container = new FlowLayoutContainer();
+	private RowExpander<Taxon> expander;
 	
 	public TaxonMatrixView() {
 		this.grid = createGrid();
@@ -65,11 +73,14 @@ public class TaxonMatrixView implements IsWidget {
 	public void init(final TaxonMatrix taxonMatrix) {
 		this.taxonMatrix = taxonMatrix;
 		ListStore<Taxon> store = new ListStore<Taxon>(new TaxonModelKeyProvider());
+		//yes or no? store.setAutoCommit(false);
+		
 		for (Taxon taxon : taxonMatrix.getTaxa()) {
 			store.add(taxon);
 		}
 		
 		List<ColumnConfig<Taxon, ?>> l = new ArrayList<ColumnConfig<Taxon, ?>>();
+		l.add(expander);
 		l.add(this.createNameColumnConfig());
 		for (final Character character : taxonMatrix.getCharacters()) 
 			l.add(createCharacterColumnConfig(character));
@@ -79,10 +90,44 @@ public class TaxonMatrixView implements IsWidget {
 		
 		//set up editing
 		editing = new MyGridInlineEditing<Taxon>(grid);
-		for (int i=0; i<l.size(); i++) {
+		for (int i=1; i<l.size(); i++) {
 			ColumnConfig columnConfig = l.get(i);
 			this.enableEditing(columnConfig);
 		}
+		
+		// set up filtering (tied to the store internally, so has to be done after grid is reconfigured with new store object)
+		StringFilter<Taxon> taxonNameFilter = new StringFilter<Taxon>(
+				new TaxonNameValueProvider());
+		GridFilters<Taxon> filters = new GridFilters<Taxon>();
+		filters.setLocal(true);
+		filters.addFilter(taxonNameFilter);
+		filters.initPlugin(grid);
+		
+		/*Filter<Taxon, String> taxonConceptFilter = new Filter<Taxon, String>(
+				nameValueProvider) {
+			protected TextField field;
+		
+			@Override
+			public List<FilterConfig> getFilterConfig() {
+				FilterConfig cfg = createNewFilterConfig();
+				cfg.setType("string");
+				cfg.setComparison("contains");
+				String valueToSend = field.getCurrentValue();
+				cfg.setValue(getHandler().convertToString(valueToSend));
+				return Arrays.asList(cfg);
+			}
+		
+			@Override
+			public Object getValue() {
+				return field.getCurrentValue();
+			}
+		
+			@Override
+			protected Class<String> getType() {
+				return String.class;
+			}
+		};
+		filters.addFilter();*/
 	}
 
 	private MyGrid<Taxon> createGrid() {
@@ -97,28 +142,32 @@ public class TaxonMatrixView implements IsWidget {
 		target.setFeedback(Feedback.INSERT);
 		target.setAllowSelfAsSource(true);
 
+		// set up row expander
+		expander = new RowExpander<Taxon>(new IdentityValueProvider<Taxon>() {
+			  @Override
+			  public void setValue(Taxon object, Taxon value) {
+				  System.out.println("set value");
+			  }
+			  @Override
+			  public Taxon getValue(Taxon object) {
+				  System.out.println("get value");
+			    return object;
+			  }
+			  @Override
+			  public String getPath() {
+				  System.out.println("get path");
+			    return "";
+			  }
+		}, new AbstractCell<Taxon>() {
+			@Override
+			public void render(com.google.gwt.cell.client.Cell.Context context,
+					Taxon value, SafeHtmlBuilder sb) {
+				sb.appendHtmlConstant(value.getDescription());
+			}
+		});
+		expander.initPlugin(grid);
 		
-		// Filtering
-		/*
-		 * GridFilters<Taxon> filters = new GridFilters<Taxon>();
-		 * filters.initPlugin(grid); filters.setLocal(true);
-		 * 
-		 * Filter<Taxon, String> taxonConceptFilter = new Filter<Taxon,
-		 * String>(nameValueProvider) { protected TextField field;
-		 * 
-		 * @Override public List<FilterConfig> getFilterConfig() { FilterConfig
-		 * cfg = createNewFilterConfig(); cfg.setType("string");
-		 * cfg.setComparison("contains"); String valueToSend =
-		 * field.getCurrentValue();
-		 * cfg.setValue(getHandler().convertToString(valueToSend)); return
-		 * Arrays.asList(cfg); }
-		 * 
-		 * @Override public Object getValue() { return field.getCurrentValue();
-		 * }
-		 * 
-		 * @Override protected Class<String> getType() { return String.class; }
-		 * }; filters.addFilter();
-		 */
+		//possibly bring up edit menu for row?
 		/*grid.addRowClickHandler(new RowClickHandler() {
 			@Override
 			public void onRowClick(RowClickEvent event) {
@@ -229,20 +278,7 @@ public class TaxonMatrixView implements IsWidget {
 
 	private ColumnConfig<Taxon, String> createNameColumnConfig() {
 		ColumnConfig<Taxon, String> nameCol = new ColumnConfig<Taxon, String>(
-			new ValueProvider<Taxon, String>() {
-				@Override
-				public String getValue(Taxon object) {
-					return object.getName();
-				}
-				@Override
-				public void setValue(Taxon object, String value) {
-					object.setName(value);
-				}
-				@Override
-				public String getPath() {
-					return "/name";
-				}
-			}, 200, "Taxon Concept");
+			new TaxonNameValueProvider(), 200, "Taxon Concept");
 				
 		nameCol.setCell(new TaxonCell<String>(grid));
 		return nameCol;
