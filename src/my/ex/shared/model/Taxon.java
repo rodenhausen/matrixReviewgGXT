@@ -1,16 +1,19 @@
-package my.ex.client.model;
+package my.ex.shared.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-public class Taxon {
+public class Taxon implements Serializable {
 
 	public String name;
 	private String description = "";
 	private Map<Character, Value> values = new HashMap<Character, Value>();
 
+	public Taxon() { }
+	
 	public Taxon(String name) {
 		this.name = name;
 	}

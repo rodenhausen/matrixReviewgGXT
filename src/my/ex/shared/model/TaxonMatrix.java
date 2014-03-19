@@ -1,5 +1,6 @@
-package my.ex.client.model;
+package my.ex.shared.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +10,13 @@ import java.util.List;
  * @author rodenhausen
  *
  */
-public class TaxonMatrix {
+public class TaxonMatrix implements Serializable {
 
 	private List<Taxon> taxa = new ArrayList<Taxon>();
 	private List<Character> characters = new ArrayList<Character>();
 
+	public TaxonMatrix() { }
+	
 	public TaxonMatrix(List<Character> characters) {
 		for(Character character : characters) {
 			this.characters.add(character);

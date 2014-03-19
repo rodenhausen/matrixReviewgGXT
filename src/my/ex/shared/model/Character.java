@@ -1,10 +1,12 @@
-package my.ex.client.model;
+package my.ex.shared.model;
 
-public class Character {
+import java.io.Serializable;
+
+public class Character implements Serializable {
 
 	private String name;
 
-	
+	public Character() { }
 	
 	public Character(String name) {
 		super();

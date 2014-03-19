@@ -1,6 +1,6 @@
 package my.ex.client;
 
-import my.ex.client.model.Taxon;
+import my.ex.shared.model.Taxon;
 
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;

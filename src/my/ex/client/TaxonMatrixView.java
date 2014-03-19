@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import my.ex.client.model.Character;
-import my.ex.client.model.Taxon;
-import my.ex.client.model.TaxonMatrix;
-import my.ex.client.model.Value;
+import my.ex.shared.model.Character;
+import my.ex.shared.model.Taxon;
+import my.ex.shared.model.TaxonMatrix;
+import my.ex.shared.model.Value;
 
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.DateCell;

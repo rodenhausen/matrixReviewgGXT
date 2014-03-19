@@ -1,9 +1,13 @@
-package my.ex.client.model;
+package my.ex.shared.model;
 
-public class Value {
+import java.io.Serializable;
+
+public class Value implements Serializable {
 
 	private String value;
 
+	public Value() { }
+	
 	public Value(String value) {
 		super();
 		this.value = value;
