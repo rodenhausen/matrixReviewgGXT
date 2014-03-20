@@ -1,49 +1,43 @@
 package my.ex.client;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import my.ex.shared.model.Character;
 import my.ex.shared.model.Taxon;
 import my.ex.shared.model.TaxonMatrix;
 import my.ex.shared.model.Value;
 
-import com.google.gwt.cell.client.CompositeCell;
-import com.google.gwt.cell.client.DateCell;
-import com.google.gwt.cell.client.EditTextCell;
-import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.sencha.gxt.cell.core.client.form.FieldCell;
+import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
-import com.sencha.gxt.core.client.dom.XElement;
+import com.sencha.gxt.data.shared.LabelProvider;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.dnd.core.client.DND.Feedback;
-import com.sencha.gxt.dnd.core.client.GridDragSource;
-import com.sencha.gxt.dnd.core.client.GridDropTarget;
 import com.sencha.gxt.dnd.core.client.MyGridDragSource;
 import com.sencha.gxt.dnd.core.client.MyGridDropTarget;
 import com.sencha.gxt.widget.core.client.container.Container;
 import com.sencha.gxt.widget.core.client.container.FlowLayoutContainer;
+import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.MyGrid;
 import com.sencha.gxt.widget.core.client.grid.RowExpander;
-import com.sencha.gxt.widget.core.client.grid.editing.GridInlineEditing;
 import com.sencha.gxt.widget.core.client.grid.editing.MyGridInlineEditing;
-import com.sencha.gxt.widget.core.client.grid.filters.DateFilter;
 import com.sencha.gxt.widget.core.client.grid.filters.GridFilters;
 import com.sencha.gxt.widget.core.client.grid.filters.StringFilter;
 import com.sencha.gxt.core.client.IdentityValueProvider;
@@ -58,6 +52,7 @@ public class TaxonMatrixView implements IsWidget {
 	private MyGridInlineEditing<Taxon> editing;
 	private FlowLayoutContainer container = new FlowLayoutContainer();
 	private RowExpander<Taxon> expander;
+	private Map<ColumnConfig, Boolean> isControlled = new HashMap<ColumnConfig, Boolean>();
 	
 	public TaxonMatrixView() {
 		this.grid = createGrid();
@@ -74,6 +69,7 @@ public class TaxonMatrixView implements IsWidget {
 		this.taxonMatrix = taxonMatrix;
 		ListStore<Taxon> store = new ListStore<Taxon>(new TaxonModelKeyProvider());
 		//yes or no? store.setAutoCommit(false);
+		store.setAutoCommit(true);
 		
 		for (Taxon taxon : taxonMatrix.getTaxa()) {
 			store.add(taxon);
@@ -81,9 +77,12 @@ public class TaxonMatrixView implements IsWidget {
 		
 		List<ColumnConfig<Taxon, ?>> l = new ArrayList<ColumnConfig<Taxon, ?>>();
 		l.add(expander);
-		l.add(this.createNameColumnConfig());
-		for (final Character character : taxonMatrix.getCharacters()) 
-			l.add(createCharacterColumnConfig(character));
+		ColumnConfig nameColumnConfig = createNameColumnConfig();
+		l.add(nameColumnConfig);
+		for (final Character character : taxonMatrix.getCharacters()) {
+			ColumnConfig characterColumnConfig = createCharacterColumnConfig(character);
+			l.add(characterColumnConfig);
+		}
 		ColumnModel<Taxon> cm = new ColumnModel<Taxon>(l);
 		
 		grid.reconfigure(store, cm);
@@ -93,6 +92,7 @@ public class TaxonMatrixView implements IsWidget {
 		for (int i=1; i<l.size(); i++) {
 			ColumnConfig columnConfig = l.get(i);
 			this.enableEditing(columnConfig);
+			this.setIsControlled(columnConfig, false);
 		}
 		
 		// set up filtering (tied to the store internally, so has to be done after grid is reconfigured with new store object)
@@ -196,6 +196,7 @@ public class TaxonMatrixView implements IsWidget {
 		columns.add(columnConfig);
 		ColumnModel<Taxon> cm = new ColumnModel<Taxon>(columns);
 		this.enableEditing(columnConfig);	
+		this.setIsControlled(columnConfig, false);
 		grid.reconfigure(grid.getStore(), cm);
 	}
 	
@@ -205,6 +206,7 @@ public class TaxonMatrixView implements IsWidget {
 		ColumnConfig columnConfig = columns.remove(i + 1);
 		ColumnModel<Taxon> cm = new ColumnModel<Taxon>(columns);
 		this.disableEditing(columnConfig);
+		this.isControlled.remove(columnConfig);
 		grid.reconfigure(grid.getStore(), cm);
 	}
 
@@ -304,7 +306,6 @@ public class TaxonMatrixView implements IsWidget {
 				}, 200, character.getName());
 		characterCol.setCell(new MenuExtendedCell<String>());
 		return characterCol;
-		
 	}
 
 	public void deleteColumn(int colIndex) {
@@ -325,9 +326,42 @@ public class TaxonMatrixView implements IsWidget {
 	}
 	
 	public void enableEditing(ColumnConfig columnConfig) {
-		editing.addEditor(columnConfig, new TextField());
+		if(isControlled(columnConfig)) {
+			ListStore<String> comboValues = new ListStore<String>(
+					new ModelKeyProvider<String>() {
+						@Override
+						public String getKey(String item) {
+							return item;
+						}
+					});
+			
+			Set<String> values = new HashSet<String>();
+			for(Taxon taxon : taxonMatrix.getTaxa()) {
+				values.add((String)columnConfig.getValueProvider().getValue(taxon));
+			}
+			comboValues.addAll(values);
+			
+			ComboBox<String> editComboBox = new ComboBox<String>(comboValues, new LabelProvider<String>() {
+				@Override
+				public String getLabel(String item) {
+					return item;
+				}
+			});
+			editComboBox.setEditable(true);
+			editComboBox.setTypeAhead(true);
+			editComboBox.setTriggerAction(TriggerAction.ALL);
+			editing.addEditor(columnConfig, editComboBox);
+		} else 
+			editing.addEditor(columnConfig, new TextField());
 	}
 	
+	private boolean isControlled(ColumnConfig columnConfig) {
+		if(isControlled.containsKey(columnConfig))
+			return isControlled.get(columnConfig);
+		else
+			return false;
+	}
+
 	public void disableEditing(ColumnConfig columnConfig) {
 		editing.removeEditor(columnConfig);
 	}
@@ -343,4 +377,23 @@ public class TaxonMatrixView implements IsWidget {
 		// /loader.addLoadHandler(new LoadResultListStoreBinding<ListLoadConfig,
 		// Taxon, ListLoadResult<Taxon>>(store));
 	 */
+
+	public void setIsContolled(int colIndex, boolean value) {
+		List<ColumnConfig<Taxon, ?>> columns = new ArrayList<ColumnConfig<Taxon, ?>>(grid.getColumnModel().getColumns());
+		ColumnConfig columnConfig = columns.remove(colIndex);
+		this.setIsControlled(columnConfig, value);
+	}
+	
+	public void setIsControlled(ColumnConfig columnConfig, boolean value) {
+		this.isControlled.put(columnConfig, value);
+		//refresh editing
+		this.enableEditing(columnConfig);
+	}
+
+	public boolean isControlled(int colIndex) {
+		List<ColumnConfig<Taxon, ?>> columns = new ArrayList<ColumnConfig<Taxon, ?>>(grid.getColumnModel().getColumns());
+		ColumnConfig columnConfig = columns.remove(colIndex);
+		return this.isControlled(columnConfig);
+	}
+	
 }

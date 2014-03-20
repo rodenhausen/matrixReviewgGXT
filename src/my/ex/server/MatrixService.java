@@ -22,7 +22,7 @@ public class MatrixService extends RemoteServiceServlet implements IMatrixServic
 
 	@Override
 	public TaxonMatrix getMatrix() {
-		return readButterflyTaxonMatrix();
+		return createSampleMatrix();
 	}
 	
 	private TaxonMatrix createSampleMatrix() {

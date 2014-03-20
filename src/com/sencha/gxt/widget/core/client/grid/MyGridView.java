@@ -64,6 +64,17 @@ public class MyGridView<M> extends GridView<M> {
 			}
 		});
 		menu.add(item);
+		
+		item = new MenuItem();
+		item.setText("Controlled");
+		// item.setIcon(header.getAppearance().sortAscendingIcon());
+		item.addSelectionHandler(new SelectionHandler<Item>() {
+			@Override
+			public void onSelection(SelectionEvent<Item> event) {
+				taxonMatrixView.setIsContolled(colIndex, !taxonMatrixView.isControlled(colIndex));
+			}
+		});
+		menu.add(item);
 
 		item = new MenuItem("Move after");
 		menu.add(item);
