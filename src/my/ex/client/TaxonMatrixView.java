@@ -52,7 +52,7 @@ public class TaxonMatrixView implements IsWidget {
 	private MyGridInlineEditing<Taxon> editing;
 	private FlowLayoutContainer container = new FlowLayoutContainer();
 	private RowExpander<Taxon> expander;
-	private Map<ColumnConfig, Boolean> isControlled = new HashMap<ColumnConfig, Boolean>();
+	private Map<ColumnConfig, ControlMode> columnControlMap = new HashMap<ColumnConfig, ControlMode>();
 	
 	public TaxonMatrixView() {
 		this.grid = createGrid();
@@ -91,16 +91,21 @@ public class TaxonMatrixView implements IsWidget {
 		editing = new MyGridInlineEditing<Taxon>(grid);
 		for (int i=1; i<l.size(); i++) {
 			ColumnConfig columnConfig = l.get(i);
+			this.setControlMode(columnConfig, ControlMode.OFF);
 			this.enableEditing(columnConfig);
-			this.setIsControlled(columnConfig, false);
 		}
 		
 		// set up filtering (tied to the store internally, so has to be done after grid is reconfigured with new store object)
-		StringFilter<Taxon> taxonNameFilter = new StringFilter<Taxon>(
-				new TaxonNameValueProvider());
 		GridFilters<Taxon> filters = new GridFilters<Taxon>();
 		filters.setLocal(true);
+		
+		StringFilter<Taxon> taxonNameFilter = new StringFilter<Taxon>(new TaxonNameValueProvider());
 		filters.addFilter(taxonNameFilter);
+		for (int i=1; i<l.size(); i++) {
+			ColumnConfig columnConfig = l.get(i);
+			StringFilter<Taxon> characterStateFilter = new StringFilter<Taxon>(columnConfig.getValueProvider());
+			filters.addFilter(characterStateFilter);
+		}
 		filters.initPlugin(grid);
 		
 		/*Filter<Taxon, String> taxonConceptFilter = new Filter<Taxon, String>(
@@ -196,7 +201,7 @@ public class TaxonMatrixView implements IsWidget {
 		columns.add(columnConfig);
 		ColumnModel<Taxon> cm = new ColumnModel<Taxon>(columns);
 		this.enableEditing(columnConfig);	
-		this.setIsControlled(columnConfig, false);
+		this.setControlMode(columnConfig, ControlMode.OFF);
 		grid.reconfigure(grid.getStore(), cm);
 	}
 	
@@ -206,7 +211,7 @@ public class TaxonMatrixView implements IsWidget {
 		ColumnConfig columnConfig = columns.remove(i + 1);
 		ColumnModel<Taxon> cm = new ColumnModel<Taxon>(columns);
 		this.disableEditing(columnConfig);
-		this.isControlled.remove(columnConfig);
+		this.columnControlMap.remove(columnConfig);
 		grid.reconfigure(grid.getStore(), cm);
 	}
 
@@ -322,11 +327,22 @@ public class TaxonMatrixView implements IsWidget {
 		} else {
 			this.enableEditing(columnConfig);
 		}
-		
 	}
 	
 	public void enableEditing(ColumnConfig columnConfig) {
-		if(isControlled(columnConfig)) {
+		switch(this.getControlMode(columnConfig)) {
+		case OFF:
+			editing.addEditor(columnConfig, new TextField());
+			break;
+		case NUMERICAL:
+			//TODO add validation to only allow numerical values from there on
+			editing.addEditor(columnConfig, new TextField());
+			break;
+		case CATEGORICAL:
+			Set<String> values = new HashSet<String>();
+			for(Taxon taxon : taxonMatrix.getTaxa()) {
+				values.add((String)columnConfig.getValueProvider().getValue(taxon));
+			}
 			ListStore<String> comboValues = new ListStore<String>(
 					new ModelKeyProvider<String>() {
 						@Override
@@ -334,13 +350,7 @@ public class TaxonMatrixView implements IsWidget {
 							return item;
 						}
 					});
-			
-			Set<String> values = new HashSet<String>();
-			for(Taxon taxon : taxonMatrix.getTaxa()) {
-				values.add((String)columnConfig.getValueProvider().getValue(taxon));
-			}
 			comboValues.addAll(values);
-			
 			ComboBox<String> editComboBox = new ComboBox<String>(comboValues, new LabelProvider<String>() {
 				@Override
 				public String getLabel(String item) {
@@ -351,13 +361,32 @@ public class TaxonMatrixView implements IsWidget {
 			editComboBox.setTypeAhead(true);
 			editComboBox.setTriggerAction(TriggerAction.ALL);
 			editing.addEditor(columnConfig, editComboBox);
-		} else 
+			break;
+		default:
 			editing.addEditor(columnConfig, new TextField());
+			break;
+		}	
 	}
-	
+
+
+	/**
+	 * Determine whether the values are probably more numerical. Simplistic implementation for now
+	 * @param values
+	 * @return
+	 */
+	private boolean isNumeric(Set<String> values) {
+		int numericalCount = 0;
+		for(String value : values) {
+			if(value.matches("[0-9]*")) {
+				numericalCount++;
+			}
+		}
+		return numericalCount > values.size() / 2;
+	}
+
 	private boolean isControlled(ColumnConfig columnConfig) {
-		if(isControlled.containsKey(columnConfig))
-			return isControlled.get(columnConfig);
+		if(columnControlMap.containsKey(columnConfig))
+			return !columnControlMap.get(columnConfig).equals(ControlMode.OFF);
 		else
 			return false;
 	}
@@ -378,14 +407,14 @@ public class TaxonMatrixView implements IsWidget {
 		// Taxon, ListLoadResult<Taxon>>(store));
 	 */
 
-	public void setIsContolled(int colIndex, boolean value) {
+	public void setControlMode(int colIndex, ControlMode controlMode) {
 		List<ColumnConfig<Taxon, ?>> columns = new ArrayList<ColumnConfig<Taxon, ?>>(grid.getColumnModel().getColumns());
 		ColumnConfig columnConfig = columns.remove(colIndex);
-		this.setIsControlled(columnConfig, value);
+		this.setControlMode(columnConfig, controlMode);
 	}
 	
-	public void setIsControlled(ColumnConfig columnConfig, boolean value) {
-		this.isControlled.put(columnConfig, value);
+	public void setControlMode(ColumnConfig columnConfig, ControlMode controlMode) {
+		this.columnControlMap.put(columnConfig, controlMode);
 		//refresh editing
 		this.enableEditing(columnConfig);
 	}
@@ -394,6 +423,41 @@ public class TaxonMatrixView implements IsWidget {
 		List<ColumnConfig<Taxon, ?>> columns = new ArrayList<ColumnConfig<Taxon, ?>>(grid.getColumnModel().getColumns());
 		ColumnConfig columnConfig = columns.remove(colIndex);
 		return this.isControlled(columnConfig);
+	}
+
+	public boolean isLocked(int colIndex) {
+		ColumnConfig columnConfig = grid.getColumnModel().getColumns().get(colIndex);
+		return editing.getEditor(columnConfig) == null;
+	}
+
+	public void setLocked(int colIndex, boolean newValue) {
+		ColumnConfig columnConfig = grid.getColumnModel().getColumns().get(colIndex);
+		if(newValue) {
+			this.disableEditing(columnConfig);
+		} else {
+			this.enableEditing(columnConfig);
+		}
+	}
+
+	public ControlMode getControlMode(int colIndex) {
+		ColumnConfig columnConfig = grid.getColumnModel().getColumns().get(colIndex);
+		return this.columnControlMap.get(columnConfig);
+	}
+	
+	
+	private ControlMode getControlMode(ColumnConfig columnConfig) {
+		return this.columnControlMap.get(columnConfig);
+	}
+	
+	public ControlMode determineControlMode(int colIndex) {
+		ColumnConfig columnConfig = grid.getColumnModel().getColumns().get(colIndex);
+		Set<String> values = new HashSet<String>();
+		for(Taxon taxon : taxonMatrix.getTaxa()) {
+			values.add((String)columnConfig.getValueProvider().getValue(taxon));
+		}
+		if(isNumeric(values))
+			return ControlMode.NUMERICAL;
+		return ControlMode.CATEGORICAL;
 	}
 	
 }

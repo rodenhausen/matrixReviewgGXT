@@ -26,8 +26,7 @@ public class MyColumnHeader<M> extends ColumnHeader<M> {
 	private Container scrollContainer;
 	
 	public MyColumnHeader(Widget container, ColumnModel<M> cm, Container scrollContainer) {
-		super(container, cm, GWT
-				.<ColumnHeaderAppearance> create(ColumnHeaderAppearance.class));
+		super(container, cm, GWT.<ColumnHeaderAppearance> create(ColumnHeaderAppearance.class));
 		this.scrollContainer = scrollContainer;
 	}
 

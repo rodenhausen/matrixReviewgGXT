@@ -2,6 +2,7 @@ package com.sencha.gxt.widget.core.client.grid;
 
 import java.util.List;
 
+import my.ex.client.ControlMode;
 import my.ex.client.TaxonMatrixView;
 
 import com.google.gwt.core.client.GWT;
@@ -18,6 +19,7 @@ import com.sencha.gxt.messages.client.DefaultMessages;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderAppearance;
 import com.sencha.gxt.widget.core.client.grid.ColumnHeader.ColumnHeaderStyles;
 import com.sencha.gxt.widget.core.client.grid.GridView.GridAppearance;
+import com.sencha.gxt.widget.core.client.menu.CheckMenuItem;
 import com.sencha.gxt.widget.core.client.menu.Item;
 import com.sencha.gxt.widget.core.client.menu.Menu;
 import com.sencha.gxt.widget.core.client.menu.MenuItem;
@@ -31,7 +33,6 @@ public class MyGridView<M> extends GridView<M> {
 	public MyGridView(TaxonMatrixView taxonMatrixView) {
 		this(GWT.<ColumnHeaderAppearance> create(ColumnHeaderAppearance.class), taxonMatrixView);
 	}
-	
 
 	public MyGridView(ColumnHeaderAppearance columnHeaderAppearance, TaxonMatrixView taxonMatrixView) {
 		this.columnHeaderAppearance = columnHeaderAppearance;
@@ -54,27 +55,34 @@ public class MyGridView<M> extends GridView<M> {
 		});
 		menu.add(item);
 
-		item = new MenuItem();
-		item.setText("Lock");
-		// item.setIcon(header.getAppearance().sortAscendingIcon());
-		item.addSelectionHandler(new SelectionHandler<Item>() {
+		final CheckMenuItem lockItem = new CheckMenuItem("Lock");
+		lockItem.setChecked(taxonMatrixView.isLocked(colIndex));
+		lockItem.addSelectionHandler(new SelectionHandler<Item>() {
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
-				taxonMatrixView.toggleEditing(colIndex);
+				boolean newValue = !taxonMatrixView.isLocked(colIndex);
+				lockItem.setChecked(newValue);
+				taxonMatrixView.setLocked(colIndex, newValue);
 			}
 		});
-		menu.add(item);
+		menu.add(lockItem);
 		
-		item = new MenuItem();
-		item.setText("Controlled");
-		// item.setIcon(header.getAppearance().sortAscendingIcon());
-		item.addSelectionHandler(new SelectionHandler<Item>() {
+		final CheckMenuItem controlItem = new CheckMenuItem("Controlled");
+		controlItem.setChecked(taxonMatrixView.isControlled(colIndex));
+		controlItem.addSelectionHandler(new SelectionHandler<Item>() {
 			@Override
 			public void onSelection(SelectionEvent<Item> event) {
-				taxonMatrixView.setIsContolled(colIndex, !taxonMatrixView.isControlled(colIndex));
+				boolean activate = !taxonMatrixView.isControlled(colIndex);
+				if(activate) {
+					ControlMode controlMode = taxonMatrixView.determineControlMode(colIndex);
+					taxonMatrixView.setControlMode(colIndex, controlMode);
+				} else {
+					taxonMatrixView.setControlMode(colIndex, ControlMode.OFF);
+				}
+				controlItem.setChecked(activate);
 			}
 		});
-		menu.add(item);
+		menu.add(controlItem);
 
 		item = new MenuItem("Move after");
 		menu.add(item);
